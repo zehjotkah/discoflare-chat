@@ -9,7 +9,7 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["DiscordGateway"]
+new_sqlite_classes = ["DiscordGateway"]
 
 [vars]
 ENVIRONMENT = "production"

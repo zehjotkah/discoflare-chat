@@ -9,7 +9,7 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["ChatSession"]
+new_sqlite_classes = ["ChatSession"]
 
 [vars]
 ENVIRONMENT = "production"
