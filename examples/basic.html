@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiscoFlare Chat Demo - Basic Integration</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #1f2937;
+    }
+    .info-box {
+      background: #f3f4f6;
+      border-left: 4px solid #5865F2;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 4px;
+    }
+    .code-block {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>DiscoFlare Chat Demo</h1>
+  
+  <p>This is a basic example of the chat widget integration. Click the chat button in the bottom-right corner to start a conversation.</p>
+  
+  <div class="info-box">
+    <strong>Note:</strong> This is a demo page. To use the chat widget on your website, you need to:
+    <ol>
+      <li>Deploy the Cloudflare Workers (main worker and bot relay)</li>
+      <li>Set up Discord bot and Turnstile</li>
+      <li>Update the configuration below with your actual URLs and keys</li>
+    </ol>
+  </div>
+  
+  <h2>Integration Code</h2>
+  
+  <div class="code-block">
+&lt;!-- Load Cloudflare Turnstile --&gt;
+&lt;script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer&gt;&lt;/script&gt;
+
+&lt;!-- Load Chat Widget --&gt;
+&lt;script src="../widget/chat-widget.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.CloudflareChat = {
+    workerUrl: 'https://your-worker.workers.dev',
+    turnstileSiteKey: 'your-turnstile-site-key',
+    theme: {
+      primaryColor: '#5865F2',
+      position: 'bottom-right'
+    }
+  };
+&lt;/script&gt;
+  </div>
+  
+  <h2>Features</h2>
+  <ul>
+    <li>Real-time bidirectional communication via WebSocket</li>
+    <li>Session persistence across page refreshes</li>
+    <li>Automatic reconnection on connection loss</li>
+    <li>Spam protection with Cloudflare Turnstile</li>
+    <li>Thread reuse for returning visitors</li>
+    <li>Mobile-responsive design</li>
+  </ul>
+  
+  <h2>Performance</h2>
+  <ul>
+    <li>Bundle size: ~5KB (minified)</li>
+    <li>Zero third-party dependencies</li>
+    <li>Perfect Lighthouse scores</li>
+    <li>No render-blocking resources</li>
+  </ul>
+  
+  <!-- Load Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  
+  <!-- Load DiscoFlare Chat Widget -->
+  <script src="../widget/chat-widget.js"></script>
+  <script>
+    // IMPORTANT: Replace these values with your actual configuration
+    window.DiscoFlareChat = {
+      workerUrl: 'https://your-worker.workers.dev', // Replace with your worker URL
+      turnstileSiteKey: 'your-turnstile-site-key',  // Replace with your Turnstile site key
+      theme: {
+        primaryColor: '#5865F2',
+        position: 'bottom-right',
+        buttonSize: 60,
+        borderRadius: 12,
+      },
+      text: {
+        buttonLabel: 'Chat with us',
+        headerTitle: 'Support Chat',
+        placeholder: 'Type your message...',
+        sendButton: 'Send',
+        welcomeMessage: 'Welcome! How can we help you today?',
+      },
+      autoOpen: false,
+      showOnMobile: true,
+      persistSession: true,
+    };
+  </script>
+</body>
+</html>

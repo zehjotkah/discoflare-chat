@@ -1,0 +1,22 @@
+name = "discoflare-chat-main"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[durable_objects]
+bindings = [
+  { name = "CHAT_SESSION", class_name = "ChatSession" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ChatSession"]
+
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets to set via: wrangler secret put SECRET_NAME
+# DISCORD_BOT_TOKEN - Discord bot authentication token
+# DISCORD_SUPPORT_CHANNEL_ID - Channel ID for support threads
+# TURNSTILE_SECRET_KEY - Cloudflare Turnstile secret key
+# BOT_RELAY_SECRET - Shared secret for bot relay authentication
+# ALLOWED_ORIGINS - Comma-separated list of allowed origins (e.g., https://example.com,https://www.example.com)

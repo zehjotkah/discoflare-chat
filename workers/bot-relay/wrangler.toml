@@ -1,0 +1,20 @@
+name = "discoflare-chat-bot-relay"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[durable_objects]
+bindings = [
+  { name = "DISCORD_GATEWAY", class_name = "DiscordGateway" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["DiscordGateway"]
+
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets to set via: wrangler secret put SECRET_NAME
+# DISCORD_BOT_TOKEN - Discord bot authentication token (same as main worker)
+# MAIN_WORKER_URL - URL of the main worker (e.g., https://cloudflare-chat-main.your-subdomain.workers.dev)
+# BOT_RELAY_SECRET - Shared secret for authentication (same as main worker)

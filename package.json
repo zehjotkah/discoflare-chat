@@ -1,0 +1,27 @@
+{
+  "name": "discoflare-chat",
+  "version": "1.0.0",
+  "description": "Lightweight, high-performance chat widget using Cloudflare Workers and Discord",
+  "scripts": {
+    "build:widget": "bash scripts/build-widget.sh",
+    "deploy:main": "cd workers/main-worker && npm run deploy",
+    "deploy:bot": "cd workers/bot-relay && npm run deploy",
+    "deploy:all": "npm run deploy:main && npm run deploy:bot",
+    "dev:main": "cd workers/main-worker && npm run dev",
+    "dev:bot": "cd workers/bot-relay && npm run dev"
+  },
+  "keywords": [
+    "chat",
+    "widget",
+    "cloudflare",
+    "discord",
+    "workers",
+    "durable-objects"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "terser": "^5.26.0",
+    "csso-cli": "^4.0.2"
+  }
+}
