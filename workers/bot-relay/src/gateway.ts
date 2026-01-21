@@ -65,12 +65,16 @@ export class DiscordGateway {
       const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
       this.ws = new WebSocket(gatewayUrl);
       
+      // CRITICAL: Accept the WebSocket in the Durable Object to keep it alive
+      this.state.acceptWebSocket(this.ws);
+      
       this.ws.addEventListener('open', () => {
-        console.log('Connected to Discord Gateway');
+        console.log('WebSocket OPEN - Connected to Discord Gateway');
         this.reconnectAttempts = 0;
       });
       
       this.ws.addEventListener('message', (event: MessageEvent) => {
+        console.log('WebSocket MESSAGE received, length:', (event.data as string).length);
         this.handleMessage(event.data as string);
       });
       
@@ -187,6 +191,8 @@ export class DiscordGateway {
    * Handle DISPATCH events
    */
   private async handleDispatch(payload: GatewayPayload): Promise<void> {
+    console.log('DISPATCH event received:', payload.t);
+    
     switch (payload.t) {
       case 'READY':
         this.sessionId = payload.d.session_id;
@@ -198,6 +204,8 @@ export class DiscordGateway {
       case 'MESSAGE_CREATE':
         await this.handleMessageCreate(payload.d);
         break;
+      default:
+        console.log('Unhandled event type:', payload.t);
     }
   }
   
@@ -205,11 +213,24 @@ export class DiscordGateway {
    * Handle MESSAGE_CREATE event
    */
   private async handleMessageCreate(message: DiscordMessage): Promise<void> {
+    console.log('MESSAGE_CREATE received:', {
+      channelId: message.channel_id,
+      author: message.author.username,
+      isBot: message.author.bot,
+      content: message.content?.substring(0, 50),
+    });
+    
     // Ignore bot messages
-    if (message.author.bot) return;
+    if (message.author.bot) {
+      console.log('Ignoring bot message');
+      return;
+    }
     
     // Ignore empty messages
-    if (!message.content) return;
+    if (!message.content) {
+      console.log('Ignoring empty message');
+      return;
+    }
     
     // Forward to main worker
     try {
@@ -219,6 +240,11 @@ export class DiscordGateway {
         author: message.author.username,
         timestamp: Date.now(),
       };
+      
+      console.log('Relaying message to main worker:', {
+        threadId: relayMessage.threadId,
+        mainWorkerUrl: this.env.MAIN_WORKER_URL,
+      });
       
       const response = await fetch(`${this.env.MAIN_WORKER_URL}/relay`, {
         method: 'POST',
@@ -231,6 +257,8 @@ export class DiscordGateway {
       
       if (!response.ok) {
         console.error('Failed to relay message:', response.status, await response.text());
+      } else {
+        console.log('Message relayed successfully');
       }
     } catch (error) {
       console.error('Error relaying message to main worker:', error);
