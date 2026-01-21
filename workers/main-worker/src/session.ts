@@ -33,6 +33,49 @@ export class ChatSession {
    * Handle incoming HTTP requests (WebSocket upgrades)
    */
   async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    
+    // Handle register endpoint (coordinator receives session registrations)
+    if (url.pathname === '/register' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+        // Store the mapping: threadId -> DO ID
+        await this.state.storage.put(`thread:${data.threadId}`, data.doId);
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch (error) {
+        console.error('Error in register endpoint:', error);
+        return new Response(JSON.stringify({ error: 'Failed to register' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    
+    // Handle relay message endpoint
+    if (url.pathname === '/relay' && request.method === 'POST') {
+      try {
+        const message = await request.json();
+        await this.receiveAgentMessage(
+          message.threadId,
+          message.message,
+          message.author
+        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch (error) {
+        console.error('Error in relay endpoint:', error);
+        return new Response(JSON.stringify({ error: 'Failed to relay message' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    
     // Handle WebSocket upgrade
     const upgradeHeader = request.headers.get('Upgrade');
     if (upgradeHeader !== 'websocket') {
@@ -162,6 +205,23 @@ export class ChatSession {
     this.sessions.set(ws, session);
     await this.state.storage.put(`session:${sessionId}`, session);
     
+    // Register this session with the coordinator
+    try {
+      const coordinatorId = this.env.CHAT_SESSION.idFromName('message-coordinator');
+      const coordinator = this.env.CHAT_SESSION.get(coordinatorId);
+      
+      // Get this DO's ID as a string
+      const myId = this.state.id.toString();
+      
+      await coordinator.fetch(new Request(`https://internal/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ threadId, doId: myId }),
+      }));
+    } catch (error) {
+      console.error('Error registering with coordinator:', error);
+    }
+    
     // Send initial message to Discord
     await this.discord.sendInitialMessage(
       threadId,
@@ -287,7 +347,27 @@ export class ChatSession {
    * Receive message from bot relay (agent response)
    */
   async receiveAgentMessage(threadId: string, message: string, author: string): Promise<void> {
-    // Find session by threadId
+    // Check if this is the coordinator
+    const threadMapping = await this.state.storage.get<string>(`thread:${threadId}`);
+    
+    if (threadMapping) {
+      // This is the coordinator - forward to the actual session
+      try {
+        const sessionId = this.env.CHAT_SESSION.idFromString(threadMapping);
+        const sessionStub = this.env.CHAT_SESSION.get(sessionId);
+        
+        await sessionStub.fetch(new Request(`https://internal/relay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ threadId, message, author }),
+        }));
+      } catch (error) {
+        console.error('Error forwarding to session:', error);
+      }
+      return;
+    }
+    
+    // This is a regular session - deliver the message
     for (const [ws, session] of this.sessions) {
       if (session.threadId === threadId) {
         const messageData = {

@@ -117,21 +117,19 @@ async function handleRelayMessage(
       });
     }
     
-    // Find the Durable Object handling this thread
-    // Note: In production, you'd need a way to map threadId to Durable Object ID
-    // For now, we'll broadcast to all active sessions (simplified approach)
-    // A better approach would be to store threadId -> DO ID mapping in KV
+    // Use a coordinator Durable Object to route messages
+    // The coordinator tracks all active sessions and their threadIds
+    const coordinatorId = env.CHAT_SESSION.idFromName('message-coordinator');
+    const coordinator = env.CHAT_SESSION.get(coordinatorId);
     
-    // For this implementation, we'll use a singleton DO for relay coordination
-    const id = env.CHAT_SESSION.idFromName('relay-coordinator');
-    const stub = env.CHAT_SESSION.get(id);
+    // Forward the relay message to the coordinator
+    const relayRequest = new Request(`https://internal/relay`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    });
     
-    // Call the receiveAgentMessage method
-    await stub.receiveAgentMessage(
-      message.threadId,
-      message.message,
-      message.author
-    );
+    await coordinator.fetch(relayRequest);
     
     return new Response(
       JSON.stringify({ success: true }),
