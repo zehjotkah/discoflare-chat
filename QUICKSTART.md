@@ -56,25 +56,27 @@ wrangler login
 ```bash
 cd workers/main-worker
 
-# Discord bot token
+# Discord bot token (from Step 1)
 wrangler secret put DISCORD_BOT_TOKEN
-# Paste your bot token
+# When prompted, paste the bot token you copied from Discord Developer Portal
 
-# Discord channel ID
+# Discord channel ID (from Step 1)
 wrangler secret put DISCORD_SUPPORT_CHANNEL_ID
-# Paste your channel ID
+# When prompted, paste the channel ID you copied from Discord
 
-# Turnstile secret key
+# Turnstile secret key (from Step 2)
 wrangler secret put TURNSTILE_SECRET_KEY
-# Paste your Turnstile secret key
+# When prompted, paste the Turnstile secret key from Cloudflare dashboard
 
-# Generate and set bot relay secret
+# Generate and set bot relay secret (new random value)
+# First generate a secret: openssl rand -hex 32
+# Or use: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 wrangler secret put BOT_RELAY_SECRET
-# Generate with: openssl rand -hex 32
-# Or: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# When prompted, paste the generated secret (save it - you'll need it again for bot relay)
 
-# Allowed origins
+# Allowed origins (your website domains)
 wrangler secret put ALLOWED_ORIGINS
+# When prompted, enter your domains separated by commas
 # Example: https://example.com,https://www.example.com
 
 cd ../..
@@ -85,11 +87,13 @@ cd ../..
 ```bash
 cd workers/bot-relay
 
-# Same bot token as main worker
+# Discord bot token (same as main worker)
 wrangler secret put DISCORD_BOT_TOKEN
+# When prompted, paste the SAME bot token you used for main worker
 
-# Same secret as main worker
+# Bot relay secret (same as main worker)
 wrangler secret put BOT_RELAY_SECRET
+# When prompted, paste the SAME secret you generated for main worker
 
 # We'll set MAIN_WORKER_URL after deployment
 cd ../..
@@ -108,7 +112,8 @@ After deployment, you'll see the main worker URL. Copy it.
 # Set main worker URL in bot relay
 cd workers/bot-relay
 wrangler secret put MAIN_WORKER_URL
-# Paste: https://discoflare-chat-main.your-subdomain.workers.dev
+# When prompted, paste the worker URL from the deployment output above
+# It will look like: https://discoflare-chat-main.your-subdomain.workers.dev
 cd ../..
 ```
 
