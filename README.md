@@ -198,10 +198,6 @@ cloudflare-chat/
 │   ├── deploy-cloudflare.md
 │   ├── configuration.md
 │   └── api-reference.md
-├── plans/                       # Architecture plans
-│   ├── architecture.md
-│   ├── implementation-guide.md
-│   └── deployment-guide.md
 ├── scripts/
 │   ├── deploy.sh               # Deployment script
 │   └── build-widget.sh         # Widget build script
