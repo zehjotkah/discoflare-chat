@@ -193,11 +193,10 @@ cloudflare-chat/
 │   ├── basic.html              # Simple integration
 │   ├── custom-styling.html     # Custom theme
 │   └── spa-integration.html    # SPA integration
-├── docs/                        # Documentation
-│   ├── setup-discord.md
-│   ├── deploy-cloudflare.md
-│   ├── configuration.md
-│   └── api-reference.md
+├── plans/                       # Architecture plans
+│   ├── architecture.md
+│   ├── implementation-guide.md
+│   └── deployment-guide.md
 ├── scripts/
 │   ├── deploy.sh               # Deployment script
 │   └── build-widget.sh         # Widget build script
