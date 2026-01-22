@@ -111,7 +111,7 @@ graph TB
 ### 3. Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/cloudflare-discord-chat.git
+git clone https://github.com/zehjotkah/discoflare-chat.git
 cd cloudflare-discord-chat
 npm install
 ```
